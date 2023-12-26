@@ -7,11 +7,11 @@
 # LICENSE.txt file in the root directory of this source tree.
 
 import datetime
-import random
 from abc import ABC, abstractmethod
 from contextlib import ExitStack
 from pathlib import Path
-from typing import Any, Counter, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+from collections import Counter
 
 import torch
 from torchbiggraph.config import EntitySchema, RelationSchema
@@ -58,12 +58,13 @@ class TSVEdgelistReader(EdgelistReader):
 
     def read(self, path: Path):
         with path.open("rt") as tf:
+            next(tf)
             for line_num, line in enumerate(tf, start=1):
                 words = line.split(self.delimiter)
                 try:
-                    lhs_word = words[self.lhs_col]
-                    rhs_word = words[self.rhs_col]
-                    rel_word = words[self.rel_col] if self.rel_col is not None else None
+                    lhs_word = words[self.lhs_col].strip()
+                    rhs_word = words[self.rhs_col].strip()
+                    rel_word = words[self.rel_col].strip() if self.rel_col is not None else None
                     weight_word = (
                         float(words[self.weight_col])
                         if self.weight_col is not None
@@ -149,7 +150,7 @@ def collect_relation_types(
             log(f"- Left with {len(counter)} relation types")
         log("- Shuffling them...")
         names = list(counter.keys())
-        # random.shuffle(names)
+        names = sorted(names, key=lambda x: int(x[1:]))
 
     else:
         names = [rconfig.name for rconfig in relation_configs]
@@ -200,7 +201,7 @@ def collect_entities_by_type(
             log(f"- Left with {len(counter)} entities")
         log("- Shuffling them...")
         names = list(counter.keys())
-        # random.shuffle(names)
+        names = sorted(names, key=lambda x: int(x[1:]))
         entities_by_type[entity_name] = Dictionary(
             names, num_parts=entity_configs[entity_name].num_partitions
         )
