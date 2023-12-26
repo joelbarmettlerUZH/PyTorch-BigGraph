@@ -149,7 +149,7 @@ def collect_relation_types(
             log(f"- Left with {len(counter)} relation types")
         log("- Shuffling them...")
         names = list(counter.keys())
-        random.shuffle(names)
+        # random.shuffle(names)
 
     else:
         names = [rconfig.name for rconfig in relation_configs]
@@ -200,7 +200,7 @@ def collect_entities_by_type(
             log(f"- Left with {len(counter)} entities")
         log("- Shuffling them...")
         names = list(counter.keys())
-        random.shuffle(names)
+        # random.shuffle(names)
         entities_by_type[entity_name] = Dictionary(
             names, num_parts=entity_configs[entity_name].num_partitions
         )
